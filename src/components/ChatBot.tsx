@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
 
 type Message = {
   id: string;
@@ -12,16 +13,30 @@ type Message = {
 };
 
 const ChatBot = () => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hi! I'm Alicie, your hackathon assistant. How can I help you today?",
-      role: "assistant",
-      timestamp: new Date(),
-    },
-  ]);
+  
+  const initialMessage: Message = {
+    id: "1",
+    content: "Hi! I'm Alicie, your hackathon assistant. How can I help you today?",
+    role: "assistant",
+    timestamp: new Date(),
+  };
+  
+  const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [inputValue, setInputValue] = useState("");
+
+  const handleClearChat = () => {
+    setMessages([{
+      ...initialMessage,
+      id: Date.now().toString(),
+      timestamp: new Date(),
+    }]);
+    toast({
+      title: "Chat cleared",
+      description: "Your conversation has been reset.",
+    });
+  };
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -71,14 +86,26 @@ const ChatBot = () => {
                 <p className="text-xs text-white/80">Hackathon Assistant</p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="hover:bg-white/20 text-white"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClearChat}
+                className="hover:bg-white/20 text-white"
+                title="Clear chat"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-white/20 text-white"
+                title="Close chat"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Messages */}
